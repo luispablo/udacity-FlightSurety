@@ -1,4 +1,4 @@
-pragma solidity ^0.4.25;
+pragma solidity >=0.4.25;
 
 // It's important to avoid vulnerabilities due to numeric overflow bugs
 // OpenZeppelin's SafeMath library, when used correctly, protects agains such bugs
@@ -26,10 +26,12 @@ contract FlightSuretyApp {
 
     address private contractOwner;          // Account used to deploy contract
 
+    DataContract data;
+
     struct Flight {
         bool isRegistered;
         uint8 statusCode;
-        uint256 updatedTimestamp;        
+        uint256 updatedTimestamp;
         address airline;
     }
     mapping(bytes32 => Flight) private flights;
@@ -50,7 +52,7 @@ contract FlightSuretyApp {
     modifier requireIsOperational() 
     {
          // Modify to call data contract's status
-        require(true, "Contract is currently not operational");  
+        require(data.isOperational(), "Contract is currently not operational");  
         _;  // All modifiers require an "_" which indicates where the function body will be added
     }
 
@@ -71,24 +73,17 @@ contract FlightSuretyApp {
     * @dev Contract constructor
     *
     */
-    constructor
-                                (
-                                ) 
-                                public 
-    {
+    constructor (address dataContract) public {
         contractOwner = msg.sender;
+        data = DataContract(dataContract);
     }
 
     /********************************************************************************************/
     /*                                       UTILITY FUNCTIONS                                  */
     /********************************************************************************************/
 
-    function isOperational() 
-                            public 
-                            pure 
-                            returns(bool) 
-    {
-        return true;  // Modify to call data contract's status
+    function isOperational() public view returns(bool) {
+        return data.isOperational();  // Modify to call data contract's status
     }
 
     /********************************************************************************************/
@@ -100,14 +95,12 @@ contract FlightSuretyApp {
     * @dev Add an airline to the registration queue
     *
     */   
-    function registerAirline
-                            (   
-                            )
-                            external
-                            pure
-                            returns(bool success, uint256 votes)
-    {
-        return (success, 0);
+    function registerAirline (address airline) external payable returns (bool success, uint256 votes) {
+        require(msg.value >= 1 ether, "Not enough funding provided");
+        require(data.isAirline(msg.sender), "Caller is not registered airline");
+
+        data.registerAirline(airline, msg.sender);
+        return (true, 0);
     }
 
 
@@ -335,3 +328,10 @@ contract FlightSuretyApp {
 // endregion
 
 }   
+
+contract DataContract {
+    function isOperational() public view returns(bool);
+    function registerAirline (address newAirline, address existingAirline) public ;
+    function getRegisteredAirlines () public returns (uint8);
+    function isAirline (address airline) external view returns (bool);
+}

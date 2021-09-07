@@ -1,6 +1,7 @@
 
 var Test = require('../config/testConfig.js');
 var BigNumber = require('bignumber.js');
+const toBN = web3.utils.toBN;
 
 contract('Flight Surety Tests', async (accounts) => {
 
@@ -90,5 +91,43 @@ contract('Flight Surety Tests', async (accounts) => {
 
   });
  
+  it("Only existing airline may register a new airline until there are at least four airlines registered", async () => {
+    const airline1 = accounts[1];
+    const airline2 = accounts[2];
+    const airline3 = accounts[3];
+    const airline4 = accounts[4];
 
+    try {
+      await config.flightSuretyApp.registerAirline(airline2, { from: airline1, value: toBN(1E19) });
+      const result1 = await config.flightSuretyData.isAirline.call(airline2);
+      assert.equal(result1, true, "Registered by registered airline");
+      await config.flightSuretyApp.registerAirline(airline3, { from: airline4, value: toBN(1E19) });
+    } catch (err) {
+      assert(err.message.indexOf("Caller is not registered airline") > 0);
+    }
+  });
+
+  it("Registration of fifth and subsequent airlines requires multi-party consensus of 50% of registered airlines", async () => {
+    const airline1 = accounts[1];
+    const airline2 = accounts[2];
+    const airline3 = accounts[3];
+    const airline4 = accounts[4];
+    const airline5 = accounts[5];
+
+    try {
+      await config.flightSuretyApp.registerAirline(airline3, { from: airline1, value: toBN(1E19) });
+      await config.flightSuretyApp.registerAirline(airline4, { from: airline1, value: toBN(1E19) });
+      const result4 = await config.flightSuretyData.isAirline.call(airline4);
+      assert(result4, "Registered by registered airline");
+      await config.flightSuretyApp.registerAirline(airline5, { from: airline1, value: toBN(1E19) });
+      const result5 = await config.flightSuretyData.isAirline.call(airline5);
+      assert.isNotOk(result5, "Not enough consensus yet");
+      await config.flightSuretyApp.registerAirline(airline5, { from: airline1, value: toBN(1E19) });
+    } catch (err) {
+      assert(err.message.indexOf("This airline already authorized this other one") > 0);
+    }
+    await config.flightSuretyApp.registerAirline(airline5, { from: airline3, value: toBN(1E19) });
+    // const finalResult5 = await config.flightSuretyApp.isAirline.call(airline5);
+    // assert(finalResult5, "Now it's registered!");
+  });
 });

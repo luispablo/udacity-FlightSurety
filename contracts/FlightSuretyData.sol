@@ -1,4 +1,4 @@
-pragma solidity ^0.4.25;
+pragma solidity >=0.4.25;
 
 import "../node_modules/openzeppelin-solidity/contracts/math/SafeMath.sol";
 
@@ -11,6 +11,12 @@ contract FlightSuretyData {
 
     address private contractOwner;                                      // Account used to deploy contract
     bool private operational = true;                                    // Blocks all state changes throughout the contract if false
+    mapping(address => uint256) private authorizedContracts;
+    mapping(address => uint256) private airlines;
+    uint8 registeredAirlines = 0;
+
+
+    mapping(address => mapping(address => uint8)) private authorizations;
 
     /********************************************************************************************/
     /*                                       EVENT DEFINITIONS                                  */
@@ -21,12 +27,10 @@ contract FlightSuretyData {
     * @dev Constructor
     *      The deploying account becomes contractOwner
     */
-    constructor
-                                (
-                                ) 
-                                public 
-    {
+    constructor (address airline) public {
         contractOwner = msg.sender;
+        airlines[airline] = 4;
+        registeredAirlines = 1;
     }
 
     /********************************************************************************************/
@@ -36,13 +40,17 @@ contract FlightSuretyData {
     // Modifiers help avoid duplication of code. They are typically used to validate something
     // before a function is allowed to be executed.
 
+    modifier requireAuthorizedCaller () {
+        require(authorizedContracts[msg.sender] == 1);
+        _;
+    }
+
     /**
     * @dev Modifier that requires the "operational" boolean variable to be "true"
     *      This is used on all state changing functions to pause the contract in 
     *      the event there is an issue that needs to be fixed
     */
-    modifier requireIsOperational() 
-    {
+    modifier requireIsOperational() {
         require(operational, "Contract is currently not operational");
         _;  // All modifiers require an "_" which indicates where the function body will be added
     }
@@ -50,8 +58,7 @@ contract FlightSuretyData {
     /**
     * @dev Modifier that requires the "ContractOwner" account to be the function caller
     */
-    modifier requireContractOwner()
-    {
+    modifier requireContractOwner() {
         require(msg.sender == contractOwner, "Caller is not contract owner");
         _;
     }
@@ -65,11 +72,7 @@ contract FlightSuretyData {
     *
     * @return A bool that is the current operating status
     */      
-    function isOperational() 
-                            public 
-                            view 
-                            returns(bool) 
-    {
+    function isOperational() public view returns(bool) {
         return operational;
     }
 
@@ -79,16 +82,13 @@ contract FlightSuretyData {
     *
     * When operational mode is disabled, all write transactions except for this one will fail
     */    
-    function setOperatingStatus
-                            (
-                                bool mode
-                            ) 
-                            external
-                            requireContractOwner 
-    {
+    function setOperatingStatus (bool mode) external requireContractOwner {
         operational = mode;
     }
 
+    function authorizeCaller (address caller) external requireContractOwner {
+        authorizedContracts[caller] = 1;
+    }
     /********************************************************************************************/
     /*                                     SMART CONTRACT FUNCTIONS                             */
     /********************************************************************************************/
@@ -98,25 +98,32 @@ contract FlightSuretyData {
     *      Can only be called from FlightSuretyApp contract
     *
     */   
-    function registerAirline
-                            (   
-                            )
-                            external
-                            pure
-    {
+    function registerAirline (address newAirline, address existingAirline) external requireAuthorizedCaller {
+        require(authorizations[newAirline][existingAirline] == 0, "This airline already authorized this other one");
+        if (registeredAirlines < 4) {
+            airlines[newAirline] = 4;
+            registeredAirlines++;
+        } else if (airlines[newAirline] > 0) {
+            airlines[newAirline] += 1;
+        } else {
+            airlines[newAirline] = 1;
+        }
+        authorizations[newAirline][existingAirline] = 1;
     }
 
+    function isAirline (address airline) external view returns (bool) {
+        return airlines[airline] > 3;
+    }
+
+    function getRegisteredAirlines () external view returns (uint8) {
+        return registeredAirlines;
+    }
 
    /**
     * @dev Buy insurance for a flight
     *
     */   
-    function buy
-                            (                             
-                            )
-                            external
-                            payable
-    {
+    function buy () external payable {
 
     }
 
