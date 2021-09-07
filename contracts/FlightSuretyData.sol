@@ -13,6 +13,7 @@ contract FlightSuretyData {
     bool private operational = true;                                    // Blocks all state changes throughout the contract if false
     mapping(address => uint256) private authorizedContracts;
     mapping(address => uint256) private airlines;
+    address[] airlinesKeys;
     uint8 registeredAirlines = 0;
 
 
@@ -31,6 +32,7 @@ contract FlightSuretyData {
         contractOwner = msg.sender;
         airlines[airline] = 4;
         registeredAirlines = 1;
+        airlinesKeys.push(airline);
     }
 
     /********************************************************************************************/
@@ -66,6 +68,10 @@ contract FlightSuretyData {
     /********************************************************************************************/
     /*                                       UTILITY FUNCTIONS                                  */
     /********************************************************************************************/
+
+    function getAirlines () public view returns (address[] memory) {
+        return airlinesKeys;
+    }
 
     /**
     * @dev Get operating status of contract
@@ -103,6 +109,7 @@ contract FlightSuretyData {
         if (registeredAirlines < 4) {
             airlines[newAirline] = 4;
             registeredAirlines++;
+            airlinesKeys.push(newAirline);
         } else if (airlines[newAirline] > 0) {
             airlines[newAirline] += 1;
         } else {

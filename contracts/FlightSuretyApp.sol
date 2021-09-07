@@ -90,6 +90,9 @@ contract FlightSuretyApp {
     /*                                     SMART CONTRACT FUNCTIONS                             */
     /********************************************************************************************/
 
+    function getAirlines () public view returns (address[] memory) {
+        return data.getAirlines();
+    }
   
    /**
     * @dev Add an airline to the registration queue
@@ -334,4 +337,5 @@ contract DataContract {
     function registerAirline (address newAirline, address existingAirline) public ;
     function getRegisteredAirlines () public returns (uint8);
     function isAirline (address airline) external view returns (bool);
+    function getAirlines () public view returns (address[] memory);
 }

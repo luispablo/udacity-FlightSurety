@@ -33,6 +33,13 @@ export default class Contract {
         });
     }
 
+    getAirlines (callback) {
+        let self = this;
+        self.flightSuretyApp.methods
+             .getAirlines()
+             .call({ from: self.owner}, callback);
+     }
+
     isOperational(callback) {
        let self = this;
        self.flightSuretyApp.methods
