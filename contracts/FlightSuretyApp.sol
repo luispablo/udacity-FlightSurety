@@ -37,10 +37,7 @@ contract FlightSuretyApp {
     mapping(bytes32 => Flight) private flights;
 
  
-    /********************************************************************************************/
     /*                                       FUNCTION MODIFIERS                                 */
-    /********************************************************************************************/
-
     // Modifiers help avoid duplication of code. They are typically used to validate something
     // before a function is allowed to be executed.
 
@@ -49,55 +46,31 @@ contract FlightSuretyApp {
     *      This is used on all state changing functions to pause the contract in 
     *      the event there is an issue that needs to be fixed
     */
-    modifier requireIsOperational() 
-    {
-         // Modify to call data contract's status
+    modifier requireIsOperational() {
         require(data.isOperational(), "Contract is currently not operational");  
         _;  // All modifiers require an "_" which indicates where the function body will be added
     }
-
-    /**
-    * @dev Modifier that requires the "ContractOwner" account to be the function caller
-    */
-    modifier requireContractOwner()
-    {
+    modifier requireContractOwner() {
         require(msg.sender == contractOwner, "Caller is not contract owner");
         _;
     }
 
-    /********************************************************************************************/
-    /*                                       CONSTRUCTOR                                        */
-    /********************************************************************************************/
-
-    /**
-    * @dev Contract constructor
-    *
-    */
     constructor (address dataContract) public {
         contractOwner = msg.sender;
         data = DataContract(dataContract);
     }
 
-    /********************************************************************************************/
     /*                                       UTILITY FUNCTIONS                                  */
-    /********************************************************************************************/
-
     function isOperational() public view returns(bool) {
         return data.isOperational();  // Modify to call data contract's status
     }
 
-    /********************************************************************************************/
     /*                                     SMART CONTRACT FUNCTIONS                             */
-    /********************************************************************************************/
-
     function getAirlines () public view returns (address[] memory) {
         return data.getAirlines();
     }
   
-   /**
-    * @dev Add an airline to the registration queue
-    *
-    */   
+    // @dev Add an airline to the registration queue
     function registerAirline (address airline) external payable returns (bool success, uint256 votes) {
         require(msg.value >= 1 ether, "Not enough funding provided");
         require(data.isAirline(msg.sender), "Caller is not registered airline");
@@ -106,61 +79,30 @@ contract FlightSuretyApp {
         return (true, 0);
     }
 
+    function buy (string flight) external payable {
+        require(msg.value <= 1 ether, "Cannot pay more than 1 ether for insurance");
+        data.buy(msg.sender, flight, msg.value);
+    }
 
-   /**
-    * @dev Register a future flight for insuring.
-    *
-    */  
-    function registerFlight
-                                (
-                                )
-                                external
-                                pure
-    {
-
+    // @dev Register a future flight for insuring.
+    function registerFlight () external pure {
     }
     
-   /**
-    * @dev Called after oracle has updated flight status
-    *
-    */  
-    function processFlightStatus
-                                (
-                                    address airline,
-                                    string memory flight,
-                                    uint256 timestamp,
-                                    uint8 statusCode
-                                )
-                                internal
-                                pure
-    {
+    // @dev Called after oracle has updated flight status
+    function processFlightStatus (address airline, string memory flight, uint256 timestamp, uint8 statusCode) internal pure {
     }
 
-
     // Generate a request for oracles to fetch flight information
-    function fetchFlightStatus
-                        (
-                            address airline,
-                            string flight,
-                            uint256 timestamp                            
-                        )
-                        external
-    {
+    function fetchFlightStatus (address airline, string flight, uint256 timestamp) external {
         uint8 index = getRandomIndex(msg.sender);
-
         // Generate a unique key for storing the request
         bytes32 key = keccak256(abi.encodePacked(index, airline, flight, timestamp));
-        oracleResponses[key] = ResponseInfo({
-                                                requester: msg.sender,
-                                                isOpen: true
-                                            });
-
+        oracleResponses[key] = ResponseInfo({ requester: msg.sender, isOpen: true });
         emit OracleRequest(index, airline, flight, timestamp);
     } 
 
 
-// region ORACLE MANAGEMENT
-
+    // region ORACLE MANAGEMENT
     // Incremented to add pseudo-randomness at various points
     uint8 private nonce = 0;    
 
@@ -334,8 +276,11 @@ contract FlightSuretyApp {
 
 contract DataContract {
     function isOperational() public view returns(bool);
+    function isAuthorizedCaller (address caller) public view returns (uint8);
+    function authorizeCaller (address caller) external;
     function registerAirline (address newAirline, address existingAirline) public ;
     function getRegisteredAirlines () public returns (uint8);
     function isAirline (address airline) external view returns (bool);
     function getAirlines () public view returns (address[] memory);
+    function buy (address customer, string flight, uint256 value) external payable;
 }

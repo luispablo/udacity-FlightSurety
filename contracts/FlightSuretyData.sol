@@ -11,11 +11,12 @@ contract FlightSuretyData {
 
     address private contractOwner;                                      // Account used to deploy contract
     bool private operational = true;                                    // Blocks all state changes throughout the contract if false
-    mapping(address => uint256) private authorizedContracts;
+    mapping(address => bool) private authorizedContracts;
     mapping(address => uint256) private airlines;
     address[] airlinesKeys;
     uint8 registeredAirlines = 0;
 
+    mapping(address => mapping(string => uint256)) private insurances;
 
     mapping(address => mapping(address => uint8)) private authorizations;
 
@@ -43,7 +44,7 @@ contract FlightSuretyData {
     // before a function is allowed to be executed.
 
     modifier requireAuthorizedCaller () {
-        require(authorizedContracts[msg.sender] == 1);
+        require(authorizedContracts[msg.sender], "Caller is not authorized");
         _;
     }
 
@@ -68,7 +69,9 @@ contract FlightSuretyData {
     /********************************************************************************************/
     /*                                       UTILITY FUNCTIONS                                  */
     /********************************************************************************************/
-
+    function isAuthorizedCaller (address caller) public view returns (bool) {
+        return authorizedContracts[caller];
+    }
     function getAirlines () public view returns (address[] memory) {
         return airlinesKeys;
     }
@@ -92,8 +95,8 @@ contract FlightSuretyData {
         operational = mode;
     }
 
-    function authorizeCaller (address caller) external requireContractOwner {
-        authorizedContracts[caller] = 1;
+    function authorizeCaller (address caller) external requireIsOperational requireContractOwner {
+        authorizedContracts[caller] = true;
     }
     /********************************************************************************************/
     /*                                     SMART CONTRACT FUNCTIONS                             */
@@ -130,8 +133,8 @@ contract FlightSuretyData {
     * @dev Buy insurance for a flight
     *
     */   
-    function buy () external payable {
-
+    function buy (address customer, string flight, uint256 value) external payable {
+        insurances[customer][flight] = value;
     }
 
     /**

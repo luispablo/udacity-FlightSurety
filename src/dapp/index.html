@@ -22,11 +22,14 @@
     <main class="container">
 
         <div>
-            <h2>Choose airline and flight</h2>
-            <!-- <label>Airline</label><select id="airlines"></select> -->
-            <label>Flight</label><select id="flights"></select>
-            <label>Departure</label><select id="departures"></select>
+            <h2>Insurance</h2>
+            <label>Passenger</label>&nbsp;<select id="passengers"></select>&emsp;&emsp;
+            <label>Flight</label>&nbsp;<select id="flights"></select>&emsp;&emsp;
+            <label>Departure</label>&nbsp;<select id="departures"></select>&emsp;
+            <label>Payment (ether, max 1)</label>&nbsp;<input type="number" id="payment" max="1" step="0.0000001" value="0.00001" />
+            <btn class="btn btn-primary" id="purchase">Purchase</btn>
         </div>
+        <br/>
 
         <div id="display-wrapper" class="top-20">
         </div>

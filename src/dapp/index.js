@@ -18,7 +18,9 @@ const DEPARTURES = [
 
 const flightsSelect = document.querySelector("#flights");
 const departuresSelect = document.querySelector("#departures");
-// const airlinesSelect = document.querySelector("#airlines");
+const paymentInput = document.querySelector("#payment");
+const purchaseBtn = document.querySelector("#purchase");
+const passengersSelect = document.querySelector("#passengers");
 
 FLIGHT_NUMBERS.forEach(n => flightsSelect.appendChild(new Option(n)));
 DEPARTURES.forEach(d => departuresSelect.appendChild(new Option(d)));
@@ -29,13 +31,14 @@ DEPARTURES.forEach(d => departuresSelect.appendChild(new Option(d)));
     let result = null;
 
     let contract = new Contract('localhost', () => {
+        contract.passengers.forEach(p => passengersSelect.appendChild(new Option(p)));
 
         // Read transaction
         contract.isOperational((error, result) => {
             console.log(error,result);
             display('Operational Status', 'Check if contract is operational', [ { label: 'Operational Status', error: error, value: result} ]);
         });
-    
+
         contract.getAirlines((error, result) => {
             if (error) console.error(error);
             else {
@@ -52,10 +55,13 @@ DEPARTURES.forEach(d => departuresSelect.appendChild(new Option(d)));
                 display('Oracles', 'Trigger oracles', [ { label: 'Fetch Flight Status', error: error, value: result.flight + ' ' + result.timestamp} ]);
             });
         })
-    console.log(contract)
     });
     
-
+    purchaseBtn.addEventListener("click", function (event) {
+        contract.buy(passengersSelect.value, flightsSelect.value, paymentInput.value, function (error, result) {
+            console.log(error, result);
+        });
+    });
 })();
 
 
