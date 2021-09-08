@@ -11,6 +11,12 @@ To install, download or clone the repo, then:
 `npm install`
 `truffle compile`
 
+## Run Ganache 
+
+```
+$ ganache-cli -a 30 -l 9999999 -m "candy maple cake sugar pudding cream honey rich smooth crumble sweet treat"
+```
+
 ## Develop Client
 
 To run truffle tests:
@@ -83,6 +89,6 @@ Deploy the contents of the ./dapp folder
 ### Oracles (Server App)
 
 - [ ] Functioning Oracle - Oracle functionality is implemented in the server app.
-- [ ] Oracle Initialization - Upon startup, 20+ oracles are registered and their assigned indexes are persisted in memory
+- [x] Oracle Initialization - Upon startup, 20+ oracles are registered and their assigned indexes are persisted in memory
 - [ ] Oracle Updates - Update flight status requests from client Dapp result in OracleRequest event emitted by Smart Contract that is captured by server (displays on console and handled in code)
 - [ ] Oracle Functionality - Server will loop through all registered oracles, identify those oracles for which the OracleRequest event applies, and respond by calling into FlightSuretyApp contract with random status code of Unknown (0), On Time (10) or Late Airline (20), Late Weather (30), Late Technical (40), or Late Other (50)
