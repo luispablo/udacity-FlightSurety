@@ -70,13 +70,25 @@ contract FlightSuretyApp {
         return data.getAirlines();
     }
   
+    function fund () public payable {
+        require(msg.value == 10 ether, "Funding requires 10 ether");
+        data.fund(msg.sender, msg.value);
+    }
+    function isFunded (address airline) public view returns (bool) {
+        return data.isFunded(airline);
+    }
+
     // @dev Add an airline to the registration queue
     function registerAirline (address airline) external payable returns (bool success, uint256 votes) {
         require(msg.value >= 1 ether, "Not enough funding provided");
         require(data.isAirline(msg.sender), "Caller is not registered airline");
 
-        data.registerAirline(airline, msg.sender);
-        return (true, 0);
+        if (isFunded(msg.sender)) {
+            data.registerAirline(airline, msg.sender);
+            return (true, 0);
+        } else {
+            return (false, 0);
+        }
     }
 
     function buy (string flight) external payable {
@@ -90,6 +102,9 @@ contract FlightSuretyApp {
     
     // @dev Called after oracle has updated flight status
     function processFlightStatus (address airline, string memory flight, uint256 timestamp, uint8 statusCode) internal pure {
+        if (statusCode == STATUS_CODE_LATE_AIRLINE) {
+            
+        }
     }
 
     // Generate a request for oracles to fetch flight information
@@ -110,7 +125,7 @@ contract FlightSuretyApp {
     uint256 public constant REGISTRATION_FEE = 1 ether;
 
     // Number of oracles that must respond for valid status
-    uint256 private constant MIN_RESPONSES = 1;
+    uint256 private constant MIN_RESPONSES = 3;
 
 
     struct Oracle {
@@ -244,4 +259,6 @@ contract DataContract {
     function isAirline (address airline) external view returns (bool);
     function getAirlines () public view returns (address[] memory);
     function buy (address customer, string flight, uint256 value) external payable;
+    function fund (address airline, uint256 value) public payable;
+    function isFunded (address airline) public view returns (bool);
 }

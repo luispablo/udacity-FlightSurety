@@ -13,6 +13,7 @@ contract FlightSuretyData {
     bool private operational = true;                                    // Blocks all state changes throughout the contract if false
     mapping(address => bool) private authorizedContracts;
     mapping(address => uint256) private airlines;
+    mapping(address => uint256) private funds;
     address[] airlinesKeys;
     uint8 registeredAirlines = 0;
 
@@ -34,6 +35,7 @@ contract FlightSuretyData {
         airlines[airline] = 4;
         registeredAirlines = 1;
         airlinesKeys.push(airline);
+        funds[airline] = 10 ether;
     }
 
     /********************************************************************************************/
@@ -166,12 +168,11 @@ contract FlightSuretyData {
     *      resulting in insurance payouts, the contract should be self-sustaining
     *
     */   
-    function fund
-                            (   
-                            )
-                            public
-                            payable
-    {
+    function fund (address airline, uint256 value) public payable {
+        funds[airline] = funds[airline].add(value);
+    }
+    function isFunded (address airline) public view returns (bool) {
+        return funds[airline] >= 1 ether;
     }
 
     function getFlightKey
@@ -195,7 +196,7 @@ contract FlightSuretyData {
                             external 
                             payable 
     {
-        fund();
+        // fund();
     }
 
 

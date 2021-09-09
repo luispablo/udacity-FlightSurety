@@ -76,7 +76,7 @@ Deploy the contents of the ./dapp folder
 - [x] Airline Contract Initialization - First airline is registered when contract is deployed.
 - [x] Multiparty Consensus - Only existing airline may register a new airline until there are at least four airlines registered (demonstrated with Truffle test)
 - [x] Multiparty Consensus - Registration of fifth and subsequent airlines requires multi-party consensus of 50% of registered airlines (demonstrated Truffle test)
-- [ ] Airline Ante - Airline can be registered, but does not participate in contract until it submits funding of 10 ether (demonstrated with Truffle test)
+- [x] Airline Ante - Airline can be registered, but does not participate in contract until it submits funding of 10 ether (demonstrated with Truffle test)
 
 ### Passengers
 
@@ -88,7 +88,7 @@ Deploy the contents of the ./dapp folder
 
 ### Oracles (Server App)
 
-- [ ] Functioning Oracle - Oracle functionality is implemented in the server app.
+- [x] Functioning Oracle - Oracle functionality is implemented in the server app.
 - [x] Oracle Initialization - Upon startup, 20+ oracles are registered and their assigned indexes are persisted in memory
-- [ ] Oracle Updates - Update flight status requests from client Dapp result in OracleRequest event emitted by Smart Contract that is captured by server (displays on console and handled in code)
+- [x] Oracle Updates - Update flight status requests from client Dapp result in OracleRequest event emitted by Smart Contract that is captured by server (displays on console and handled in code)
 - [x] Oracle Functionality - Server will loop through all registered oracles, identify those oracles for which the OracleRequest event applies, and respond by calling into FlightSuretyApp contract with random status code of Unknown (0), On Time (10) or Late Airline (20), Late Weather (30), Late Technical (40), or Late Other (50)

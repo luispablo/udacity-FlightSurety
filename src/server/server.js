@@ -17,7 +17,7 @@ web3.eth.getAccounts().then(function (accounts) {
     for (let i = 0; i < 20; i++) {
       flightSuretyApp.methods.registerOracle().send({ from: accounts[i], value: registrationFee, gas: 5000000 }, (err, res) => {
           if (err) console.error(err);
-          else console.log("Registration sent", accounts[i]);
+        //   else console.log("Registration sent", accounts[i]);
       });
     }
 });
@@ -32,14 +32,14 @@ flightSuretyApp.events.OracleRegistered({ fromBlock: 0 }, (err, { returnValues }
 
 flightSuretyApp.events.OracleRequest({ fromBlock: 0 }, function (error, { returnValues }) {
     const { index, airline, flight, timestamp } = returnValues;
-    const invokedOracles = oracles.filter(i => i.indexes[2] === index);
+    const invokedOracles = oracles.filter(i => i.indexes[0] === index || i.indexes[1] === index || i.indexes[2] === index);
     console.log("index", index);
     console.log("oracles", invokedOracles);
 
     invokedOracles.forEach(function ({ account, indexes }) {
         const statusCode = Math.floor(Math.random() * 6);
         console.log("replying", index, account);
-        flightSuretyApp.methods.submitOracleResponse(index, airline, flight, timestamp, statusCode).call({ from: account }, (err2, res2) => {
+        flightSuretyApp.methods.submitOracleResponse(index, airline, flight, timestamp, statusCode).send({ from: account }, (err2, res2) => {
             if (err2) console.error(err2);
             if (res2) console.log(res2);
         });
@@ -53,7 +53,6 @@ const apiRouter = express.Router({ mergeParams: true });
 
 apiRouter.get("/oracles", (req, res) => {
     oracles.forEach(function (oracle) {
-        console.log("checking", oracle.account, oracle.indexes)
         flightSuretyApp.methods.getOracles(oracle.account).call({ from: oracle.account}, (err, res) => {
             console.log(res);
         })

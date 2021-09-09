@@ -2,6 +2,7 @@
 var Test = require('../config/testConfig.js');
 var BigNumber = require('bignumber.js');
 const toBN = web3.utils.toBN;
+const toWei = web3.utils.toWei;
 
 contract('Flight Surety Tests', async (accounts) => {
 
@@ -82,7 +83,7 @@ contract('Flight Surety Tests', async (accounts) => {
         await config.flightSuretyApp.registerAirline(newAirline, {from: config.firstAirline});
     }
     catch(e) {
-
+      // console.error(e);
     }
     let result = await config.flightSuretyData.isAirline.call(newAirline); 
 
@@ -105,6 +106,15 @@ contract('Flight Surety Tests', async (accounts) => {
     } catch (err) {
       assert(err.message.indexOf("Caller is not registered airline") > 0);
     }
+  });
+
+  it("Is funded", async () => {
+    const airline2 = accounts[2];
+    const isFunded1 = await config.flightSuretyApp.isFunded.call(airline2);
+    assert.isNotOk(isFunded1, "Not funded yet");
+    await config.flightSuretyApp.fund({ from: airline2, value: toWei('10', 'ether') });
+    const isFunded2 = await config.flightSuretyApp.isFunded.call(airline2);
+    assert.ok(isFunded2, "Now it's funded");
   });
 
   it("Registration of fifth and subsequent airlines requires multi-party consensus of 50% of registered airlines", async () => {

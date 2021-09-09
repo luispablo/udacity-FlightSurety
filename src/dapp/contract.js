@@ -33,11 +33,10 @@ export default class Contract {
             callback();
         });
 
-        this.flightSuretyApp.events.FlightStatusInfo({ fromBlock: 0 }, console.log);
-        // this.flightSuretyApp.events.FlightStatusInfo({ fromBlock: 0 }, function (error, { returnValues }) {
-        //     console.log(returnValues)
-        // });
-        // (airline, flight, timestamp, statusCode);
+        this.flightSuretyApp.events.FlightStatusInfo({ fromBlock: 0 }, function (error, { returnValues }) {
+            const { airline, flight, status, timestamp } = returnValues;
+            console.log("flight status update", airline, flight, status, timestamp);
+        });
     }
 
     buy (customer, flight, value, cb) {
