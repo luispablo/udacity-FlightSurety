@@ -65,7 +65,7 @@ Deploy the contents of the ./dapp folder
 
 - [x] Smart Contract Seperation - Smart Contract code is separated into multiple contracts
 - [x] Dapp Created and Used for Contract Calls - A Dapp client has been created and is used for triggering contract calls. Client can be launched with “npm run dapp” and is available at http://localhost:8000
-- [ ] Dapp Created and Used for Contract Calls - Passenger can purchase insurance for flight
+- [x] Dapp Created and Used for Contract Calls - Passenger can purchase insurance for flight
 - [ ] Dapp Created and Used for Contract Calls - Trigger contract to request flight status update
 - [x] Oracle Server Application - A server app has been created for simulating oracle behavior. Server can be launched with “npm run server
 - [x] Operational status control is implemented in contracts - Students has implemented operational status control
