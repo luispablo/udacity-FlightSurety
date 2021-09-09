@@ -44,6 +44,10 @@ export default class Contract {
         this.flightSuretyApp.methods.buy(flight).call({ from: customer, value: weiValue }, cb);
     }
 
+    getCredit (passenger, cb) {
+        this.flightSuretyApp.methods.getCredit().call({ from: passenger }, cb);
+    }
+
     getAirlines (callback) {
         let self = this;
         self.flightSuretyApp.methods

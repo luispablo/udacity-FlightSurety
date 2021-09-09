@@ -14,8 +14,11 @@ contract FlightSuretyData {
     mapping(address => bool) private authorizedContracts;
     mapping(address => uint256) private airlines;
     mapping(address => uint256) private funds;
+    mapping(address => uint256) private credits;
     address[] airlinesKeys;
     uint8 registeredAirlines = 0;
+
+    address[] passengers;
 
     mapping(address => mapping(string => uint256)) private insurances;
 
@@ -104,6 +107,10 @@ contract FlightSuretyData {
     /*                                     SMART CONTRACT FUNCTIONS                             */
     /********************************************************************************************/
 
+    function getCredit (address passenger) external view returns (uint256) {
+        return credits[passenger];
+    }
+
    /**
     * @dev Add an airline to the registration queue
     *      Can only be called from FlightSuretyApp contract
@@ -131,12 +138,18 @@ contract FlightSuretyData {
         return registeredAirlines;
     }
 
-   /**
-    * @dev Buy insurance for a flight
-    *
-    */   
-    function buy (address customer, string flight, uint256 value) external payable {
-        insurances[customer][flight] = value;
+    // @dev Buy insurance for a flight
+    function buy (address passenger, string flight, uint256 value) external payable {
+        insurances[passenger][flight] = value;
+        passengers.push(passenger);
+    }
+
+    function hasInsurance (address passenger, string flight) view returns (bool) {
+        return insurances[passenger][flight] > 0;
+    }
+
+    function getPassengers () view returns (address[]) {
+        return passengers;
     }
 
     /**
@@ -155,12 +168,10 @@ contract FlightSuretyData {
      *  @dev Transfers eligible payout funds to insuree
      *
     */
-    function pay
-                            (
-                            )
-                            external
-                            pure
-    {
+    function pay (address passenger, string flight) external view {
+        uint256 value = insurances[passenger][flight];
+        insurances[passenger][flight] = 0;
+        credits[passenger] = value.mul(150).div(100);
     }
 
    /**

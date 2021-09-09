@@ -78,6 +78,10 @@ contract FlightSuretyApp {
         return data.isFunded(airline);
     }
 
+    function getCredit () external view returns (uint256) {
+        return data.getCredit(msg.sender);
+    }
+
     // @dev Add an airline to the registration queue
     function registerAirline (address airline) external payable returns (bool success, uint256 votes) {
         require(msg.value >= 1 ether, "Not enough funding provided");
@@ -101,9 +105,14 @@ contract FlightSuretyApp {
     }
     
     // @dev Called after oracle has updated flight status
-    function processFlightStatus (address airline, string memory flight, uint256 timestamp, uint8 statusCode) internal pure {
+    function processFlightStatus (address airline, string memory flight, uint256 timestamp, uint8 statusCode) internal view {
         if (statusCode == STATUS_CODE_LATE_AIRLINE) {
-            
+            address[] memory passengers = data.getPassengers();
+            for (uint i = 0; i < passengers.length; i++) {
+                if (data.hasInsurance(passengers[i], flight)) {
+                    data.pay(passengers[i], flight);
+                }
+            }
         }
     }
 
@@ -261,4 +270,8 @@ contract DataContract {
     function buy (address customer, string flight, uint256 value) external payable;
     function fund (address airline, uint256 value) public payable;
     function isFunded (address airline) public view returns (bool);
+    function getCredit (address passenger) external view returns (uint256);
+    function pay (address passenger, string flight) external pure;
+    function getPassengers () view returns (address[]);
+    function hasInsurance (address passenger, string flight) view returns (bool);
 }

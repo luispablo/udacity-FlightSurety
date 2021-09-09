@@ -17,12 +17,18 @@ const DEPARTURES = [
 ];
 
 const flightsSelect = document.querySelector("#flights");
+const flights2Select = document.querySelector("#flights2");
 const departuresSelect = document.querySelector("#departures");
 const paymentInput = document.querySelector("#payment");
 const purchaseBtn = document.querySelector("#purchase");
 const passengersSelect = document.querySelector("#passengers");
+const passengers2Select = document.querySelector("#passengers2");
+const creditLabel = document.querySelector("#credit");
 
-FLIGHT_NUMBERS.forEach(n => flightsSelect.appendChild(new Option(n)));
+FLIGHT_NUMBERS.forEach(n => {
+    flightsSelect.appendChild(new Option(n))
+    flights2Select.appendChild(new Option(n))
+});
 DEPARTURES.forEach(d => departuresSelect.appendChild(new Option(d)));
 
 (async() => {
@@ -31,7 +37,10 @@ DEPARTURES.forEach(d => departuresSelect.appendChild(new Option(d)));
     let result = null;
 
     let contract = new Contract('localhost', () => {
-        contract.passengers.forEach(p => passengersSelect.appendChild(new Option(p)));
+        contract.passengers.forEach(p => {
+            passengersSelect.appendChild(new Option(p))
+            passengers2Select.appendChild(new Option(p))
+        });
 
         // Read transaction
         contract.isOperational((error, result) => {
@@ -49,7 +58,7 @@ DEPARTURES.forEach(d => departuresSelect.appendChild(new Option(d)));
 
         // User-submitted transaction
         DOM.elid('submit-oracle').addEventListener('click', () => {
-            let flight = DOM.elid('flight-number').value;
+            let flight = DOM.elid('flights2').value;
             // Write transaction
             contract.fetchFlightStatus(flight, (error, result) => {
                 display('Oracles', 'Trigger oracles', [ { label: 'Fetch Flight Status', error: error, value: result.flight + ' ' + result.timestamp} ]);
@@ -60,6 +69,11 @@ DEPARTURES.forEach(d => departuresSelect.appendChild(new Option(d)));
     purchaseBtn.addEventListener("click", function (event) {
         contract.buy(passengersSelect.value, flightsSelect.value, paymentInput.value, function (error, result) {
             console.log(error, result);
+        });
+    });
+    passengers2Select.addEventListener("change", function (event) {
+        contract.getCredit(event.target.value, function (err, result) {
+            creditLabel.innerHTML = result;
         });
     });
 })();

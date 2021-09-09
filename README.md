@@ -82,7 +82,7 @@ Deploy the contents of the ./dapp folder
 
 - [x] Passenger Airline Choice - Passengers can choose from a fixed list of flight numbers and departure that are defined in the Dapp client
 - [x] Passenger Payment - Passengers may pay up to 1 ether for purchasing flight insurance.
-- [ ] Passenger Repayment - If flight is delayed due to airline fault, passenger receives credit of 1.5X the amount they paid
+- [x] Passenger Repayment - If flight is delayed due to airline fault, passenger receives credit of 1.5X the amount they paid
 - [ ] Passenger Withdraw - Passenger can withdraw any funds owed to them as a result of receiving credit for insurance payout
 - [ ] Insurance Payouts - Insurance payouts are not sent directly to passenger’s wallet
 
