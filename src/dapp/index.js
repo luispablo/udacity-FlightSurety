@@ -24,6 +24,7 @@ const purchaseBtn = document.querySelector("#purchase");
 const passengersSelect = document.querySelector("#passengers");
 const passengers2Select = document.querySelector("#passengers2");
 const creditLabel = document.querySelector("#credit");
+const withdrawBtn = document.querySelector("#withdraw");
 
 FLIGHT_NUMBERS.forEach(n => {
     flightsSelect.appendChild(new Option(n))
@@ -66,6 +67,13 @@ DEPARTURES.forEach(d => departuresSelect.appendChild(new Option(d)));
         })
     });
     
+    withdrawBtn.disabled = true;
+    withdrawBtn.addEventListener("click", function (event) {
+        contract.creditInsurees(passengers2Select.value, function (error, result) {
+            if (error) console.error(error);
+            else console.log("ok", result);
+        });
+    });
     purchaseBtn.addEventListener("click", function (event) {
         contract.buy(passengersSelect.value, flightsSelect.value, paymentInput.value, function (error, result) {
             console.log(error, result);
@@ -73,6 +81,7 @@ DEPARTURES.forEach(d => departuresSelect.appendChild(new Option(d)));
     });
     passengers2Select.addEventListener("change", function (event) {
         contract.getCredit(event.target.value, function (err, result) {
+            withdrawBtn.disabled = !(parseInt(result) > 0);
             creditLabel.innerHTML = result;
         });
     });

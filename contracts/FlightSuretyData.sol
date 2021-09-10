@@ -144,7 +144,7 @@ contract FlightSuretyData {
         passengers.push(passenger);
     }
 
-    function hasInsurance (address passenger, string flight) view returns (bool) {
+    function hasInsurance (address passenger, string flight) public view returns (bool) {
         return insurances[passenger][flight] > 0;
     }
 
@@ -155,12 +155,11 @@ contract FlightSuretyData {
     /**
      *  @dev Credits payouts to insurees
     */
-    function creditInsurees
-                                (
-                                )
-                                external
-                                pure
-    {
+    function creditInsurees (address passenger) external {
+        require(credits[passenger] > 0, "Passenger doesn't have credit");
+        uint256 value = credits[passenger];
+        credits[passenger] = 0;
+        passenger.transfer(value);
     }
     
 
@@ -168,7 +167,7 @@ contract FlightSuretyData {
      *  @dev Transfers eligible payout funds to insuree
      *
     */
-    function pay (address passenger, string flight) external view {
+    function pay (address passenger, string flight) external {
         uint256 value = insurances[passenger][flight];
         insurances[passenger][flight] = 0;
         credits[passenger] = value.mul(150).div(100);

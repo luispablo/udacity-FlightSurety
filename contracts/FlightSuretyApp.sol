@@ -116,6 +116,10 @@ contract FlightSuretyApp {
         }
     }
 
+    function creditInsurees () external view {
+        data.creditInsurees(msg.sender);
+    }
+
     // Generate a request for oracles to fetch flight information
     function fetchFlightStatus (address airline, string flight, uint256 timestamp) external {
         uint8 index = getRandomIndex(msg.sender);
@@ -272,6 +276,7 @@ contract DataContract {
     function isFunded (address airline) public view returns (bool);
     function getCredit (address passenger) external view returns (uint256);
     function pay (address passenger, string flight) external pure;
-    function getPassengers () view returns (address[]);
-    function hasInsurance (address passenger, string flight) view returns (bool);
+    function getPassengers () public view returns (address[]);
+    function hasInsurance (address passenger, string flight) public view returns (bool);
+    function creditInsurees (address passenger) external pure;
 }

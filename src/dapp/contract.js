@@ -41,7 +41,11 @@ export default class Contract {
 
     buy (customer, flight, value, cb) {
         const weiValue = Web3.utils.toWei(value, "ether");
-        this.flightSuretyApp.methods.buy(flight).call({ from: customer, value: weiValue }, cb);
+        this.flightSuretyApp.methods.buy(flight).send({ from: customer, value: weiValue }, cb);
+    }
+
+    creditInsurees (passenger, cb) {
+        this.flightSuretyApp.methods.creditInsurees().call({ from: passenger }, cb);
     }
 
     getCredit (passenger, cb) {
